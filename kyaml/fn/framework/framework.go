@@ -52,7 +52,12 @@ type ResourceList struct {
 	// Validating functions can optionally use this field to communicate structured
 	// validation error data to downstream functions.
 	Result *Result `yaml:"results" json:"results"`
+
+	// OpenApiUrl is the endpoint to hit to fetch
+	// the OpenAPI document being used by kyaml/openapi
+	OpenApiUrl string `yaml:"openApiUrl" json:"openApiUrl"`
 }
+
 
 // ResourceListProcessor is implemented by configuration functions built with this framework
 // to conform to the Configuration Functions Specification:
@@ -114,6 +119,7 @@ func Execute(p ResourceListProcessor, rlSource *kio.ByteReadWriter) error {
 		return errors.WrapPrefixf(err, "failed to read ResourceList input")
 	}
 	rl.FunctionConfig = rlSource.FunctionConfig
+	rl.OpenApiUrl = rlSource.OpenApiUrl
 
 	retErr := p.Process(&rl)
 

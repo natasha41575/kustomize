@@ -43,6 +43,8 @@ type ByteReadWriter struct {
 
 	Results *yaml.RNode
 
+	OpenApiUrl string
+
 	NoWrap             bool
 	WrappingAPIVersion string
 	WrappingKind       string
@@ -58,7 +60,7 @@ func (rw *ByteReadWriter) Read() ([]*yaml.RNode, error) {
 		rw.FunctionConfig = b.FunctionConfig
 	}
 	rw.Results = b.Results
-
+	rw.OpenApiUrl = b.OpenApiUrl
 	if !rw.NoWrap {
 		rw.WrappingAPIVersion = b.WrappingAPIVersion
 		rw.WrappingKind = b.WrappingKind
@@ -73,6 +75,7 @@ func (rw *ByteReadWriter) Write(nodes []*yaml.RNode) error {
 		Style:                 rw.Style,
 		FunctionConfig:        rw.FunctionConfig,
 		Results:               rw.Results,
+		OpenApiUrl:            rw.OpenApiUrl,
 		WrappingAPIVersion:    rw.WrappingAPIVersion,
 		WrappingKind:          rw.WrappingKind,
 	}.Write(nodes)
@@ -118,6 +121,8 @@ type ByteReader struct {
 	FunctionConfig *yaml.RNode
 
 	Results *yaml.RNode
+
+	OpenApiUrl string
 
 	// DisableUnwrapping prevents Resources in Lists and ResourceLists from being unwrapped
 	DisableUnwrapping bool
@@ -188,6 +193,10 @@ func (r *ByteReader) Read() ([]*yaml.RNode, error) {
 			}
 			if res := node.Field("results"); res != nil {
 				r.Results = res.Value
+			}
+			if res := node.Field("openApiUrl"); res != nil {
+				str, _ := res.Value.String()
+				r.OpenApiUrl = strings.TrimSpace(str)
 			}
 
 			items := node.Field("items")

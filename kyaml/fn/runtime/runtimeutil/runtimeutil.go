@@ -29,6 +29,8 @@ type FunctionFilter struct {
 	// FunctionConfig is passed to the function through ResourceList.functionConfig.
 	FunctionConfig *yaml.RNode `yaml:"functionConfig,omitempty"`
 
+	OpenApiUrl string `yaml:"openApiUrl,omitempty"`
+
 	// GlobalScope explicitly scopes the function to all input resources rather than only those
 	// resources scoped to it by path.
 	GlobalScope bool
@@ -146,13 +148,13 @@ func (c *FunctionFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error) {
 	if err := c.setIds(input); err != nil {
 		return nil, err
 	}
-
 	// write the input
 	err = kio.ByteWriter{
 		WrappingAPIVersion:    kio.ResourceListAPIVersion,
 		WrappingKind:          kio.ResourceListKind,
 		Writer:                in,
 		KeepReaderAnnotations: true,
+		OpenApiUrl:            c.OpenApiUrl,
 		FunctionConfig:        c.FunctionConfig}.Write(input)
 	if err != nil {
 		return nil, err

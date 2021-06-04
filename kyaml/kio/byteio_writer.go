@@ -5,6 +5,7 @@ package kio
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"sigs.k8s.io/kustomize/kyaml/errors"
@@ -32,6 +33,8 @@ type ByteWriter struct {
 	FunctionConfig *yaml.RNode
 
 	Results *yaml.RNode
+
+	OpenApiUrl string
 
 	// WrappingKind if set will cause ByteWriter to wrap the Resources in
 	// an 'items' field in this kind.  e.g. if WrappingKind is 'List',
@@ -111,6 +114,15 @@ func (w ByteWriter) Write(nodes []*yaml.RNode) error {
 		list.Content = append(list.Content,
 			&yaml.Node{Kind: yaml.ScalarNode, Value: "results"},
 			w.Results.YNode())
+	}
+	if w.OpenApiUrl != "" {
+		rnode, err := yaml.Parse(w.OpenApiUrl)
+		if err != nil {
+			return fmt.Errorf("could not parse OpenAPI Url")
+		}
+		list.Content = append(list.Content,
+			&yaml.Node{Kind: yaml.ScalarNode, Value: "openApiUrl"},
+			rnode.YNode())
 	}
 	doc := &yaml.Node{
 		Kind:    yaml.DocumentNode,
