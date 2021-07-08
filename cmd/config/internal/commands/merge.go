@@ -19,6 +19,7 @@ func GetMergeRunner(name string) *MergeRunner {
 		Long:    commands.MergeLong,
 		Example: commands.MergeExamples,
 		RunE:    r.runE,
+		Deprecated: "this will no longer be available in kustomize v5.",
 	}
 	runner.FixDocs(name, c)
 	r.Command = c

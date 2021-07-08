@@ -26,6 +26,7 @@ func GetInitRunner(name string) *InitRunner {
 		Long:    commands.InitLong,
 		Example: commands.InitExamples,
 		RunE:    r.runE,
+		Deprecated: "setter commands will no longer be available in kustomize v5 (use patches or replacements instead).",
 	}
 	runner.FixDocs(name, c)
 	r.Command = c

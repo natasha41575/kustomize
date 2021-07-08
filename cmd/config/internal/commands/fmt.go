@@ -25,6 +25,7 @@ func GetFmtRunner(name string) *FmtRunner {
 		Example: commands.FmtExamples,
 		RunE:    r.runE,
 		PreRunE: r.preRunE,
+		Deprecated: "declare a formatting transformer in your kustomization instead.",
 	}
 	runner.FixDocs(name, c)
 	c.Flags().StringVar(&r.FilenamePattern, "pattern", filters.DefaultFilenamePattern,

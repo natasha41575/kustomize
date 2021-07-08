@@ -32,6 +32,7 @@ func NewCreateSetterRunner(parent string) *CreateSetterRunner {
 		Example: commands.CreateSetterExamples,
 		PreRunE: r.preRunE,
 		RunE:    r.runE,
+		Deprecated: "setter commands will no longer be available in kustomize v5 (use patches or replacements instead).",
 	}
 	set.Flags().StringVar(&r.FieldValue, "value", "",
 		"optional flag, alternative to specifying the value as an argument. e.g. used to specify values that start with '-'")
