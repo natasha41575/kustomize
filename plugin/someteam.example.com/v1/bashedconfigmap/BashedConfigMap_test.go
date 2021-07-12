@@ -30,7 +30,4 @@ kind: ConfigMap
 metadata:
   name: example-configmap-test
 `)
-	if m.Resources()[0].NeedHashSuffix() != true {
-		t.Errorf("expected resource to need hashing")
-	}
 }

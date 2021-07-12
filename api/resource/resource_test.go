@@ -28,8 +28,6 @@ var testConfigMap = factory.FromMap(
 		},
 	})
 
-const genArgOptions = "{nsfx:false,beh:unspecified}"
-
 //nolint:gosec
 const configMapAsString = `{"apiVersion":"v1","kind":"ConfigMap","metadata":{"name":"winnie","namespace":"hundred-acre-wood"}}`
 
@@ -66,11 +64,11 @@ func TestResourceString(t *testing.T) {
 	}{
 		{
 			in: testConfigMap,
-			s:  configMapAsString + genArgOptions,
+			s:  configMapAsString,
 		},
 		{
 			in: testDeployment,
-			s:  deploymentAsString + genArgOptions,
+			s:  deploymentAsString,
 		},
 	}
 	for _, test := range tests {
