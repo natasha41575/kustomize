@@ -30,6 +30,8 @@ var testConfigMap = factory.FromMap(
 
 //nolint:gosec
 const configMapAsString = `{"apiVersion":"v1","kind":"ConfigMap","metadata":{"name":"winnie","namespace":"hundred-acre-wood"}}`
+const configMapAsStringWithOptions = "{\"apiVersion\":\"v1\",\"kind\":\"ConfigMap\",\"metadata\":{\"annotations\":" +
+	"{\"config.kubernetes.io/generatorOptions\":\"{}\\n\"},\"name\":\"winnie\",\"namespace\":\"hundred-acre-wood\"}}"
 
 var testDeployment = factory.FromMap(
 	map[string]interface{}{
@@ -41,6 +43,9 @@ var testDeployment = factory.FromMap(
 	})
 
 const deploymentAsString = `{"apiVersion":"apps/v1","kind":"Deployment","metadata":{"name":"pooh"}}`
+const deploymentAsStringWithOptions = "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment" +
+	"\",\"metadata\":{\"annotations\":{\"config.kubernetes.io/generatorOptions\":\"{}\\n\"}" +
+	",\"name\":\"pooh\"}}"
 
 func TestAsYAML(t *testing.T) {
 	expected := `apiVersion: apps/v1
@@ -72,6 +77,30 @@ func TestResourceString(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		if test.in.String() != test.s {
+			t.Fatalf("Expected %s == %s", test.in.String(), test.s)
+		}
+	}
+}
+
+func TestResourceStringWithOptionsAnnotations(t *testing.T) {
+	tests := []struct {
+		in *Resource
+		s  string
+	}{
+		{
+			in: testConfigMap,
+			s:  configMapAsStringWithOptions,
+		},
+		{
+			in: testDeployment,
+			s:  deploymentAsStringWithOptions,
+		},
+	}
+	for _, test := range tests {
+		test.in.SetOptions(&types.GenArgs{
+			Args: &types.GeneratorArgs{},
+		})
 		if test.in.String() != test.s {
 			t.Fatalf("Expected %s == %s", test.in.String(), test.s)
 		}
@@ -1168,4 +1197,35 @@ spec:
 		resid.FromString("gr1_ver1_knd1|ns1|name1"),
 		resid.FromString("gr2_ver2_knd2|ns2|name2"),
 	})
+}
+
+func TestOptions(t *testing.T) {
+	r, err := factory.FromBytes([]byte(`
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example-configmap-test
+`))
+	assert.NoError(t, err)
+	options := &types.GenArgs{
+		Args: &types.GeneratorArgs{
+			Behavior: "merge",
+			Options: &types.GeneratorOptions{
+				DisableNameSuffixHash: true,
+			},
+		},
+	}
+	r.SetOptions(options)
+	assert.Equal(t, r.RNode.MustString(), `apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example-configmap-test
+  annotations:
+    config.kubernetes.io/generatorOptions: |
+      behavior: merge
+      options:
+        disableNameSuffixHash: true
+`)
+	assert.Equal(t, r.Behavior(), types.BehaviorMerge)
+	assert.Equal(t, r.NeedHashSuffix(), !options.Args.Options.DisableNameSuffixHash)
 }
